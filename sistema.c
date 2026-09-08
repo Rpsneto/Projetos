@@ -1,7 +1,7 @@
 //inicio do meu trabalho de biblioteca 
 
 #include <stdio.h>
-#include <string.h> // Garante que comandos de texto funcionem sem erro
+#include <string.h> 
 
 //Struct dos livros
 typedef struct meulivro {
