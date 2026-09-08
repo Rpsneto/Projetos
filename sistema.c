@@ -48,15 +48,15 @@ int main() {
     livro meulivro;
     printf("Digite o nome do livro:  ");
     fgets(meulivro.titulo, 100, stdin);
-    meulivro.titulo[strcspn(meulivro.titulo, "\n")] = 0; // Limpa o \n para o arquivo ficar organizado
+    meulivro.titulo[strcspn(meulivro.titulo, "\n")] = 0; 
 
     printf("Digite o autor do livro:  ");
     fgets(meulivro.autor, 50, stdin);
-    meulivro.autor[strcspn(meulivro.autor, "\n")] = 0; // Limpa o \n para o arquivo ficar organizado
+    meulivro.autor[strcspn(meulivro.autor, "\n")] = 0; 
 
     printf("Digite o ano de publicação do livro:  ");
     scanf("%d", &meulivro.ano);
-    while (getchar() != '\n'); // Limpa a sujeira do teclado
+    while (getchar() != '\n'); 
     
     printf("==== LIVRO CADASTRADO ====\n");
     printf("Titulo: %s\n", meulivro.titulo);
