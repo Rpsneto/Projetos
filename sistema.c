@@ -7,7 +7,7 @@
 typedef struct meulivro {
     char titulo[100];
     char autor[50];
-    int ano;
+    int ano;    
 } livro;
 
 void listar_livros() {
@@ -29,13 +29,13 @@ void listar_livros() {
 }  
 
 //Função para salvar os livros
-void salvar_livro(livro meulivro) {
+void salvar_livro(livro meulivro[]) {
     FILE *arquivo = fopen("biblioteca.txt", "a");
 
     if (arquivo != NULL) {
-        fprintf(arquivo, "%s\n", meulivro.titulo);
-        fprintf(arquivo, "%s\n", meulivro.autor);
-        fprintf(arquivo, "%d\n", meulivro.ano);
+        fprintf(arquivo, "%s\n", meulivro[0].titulo);
+        fprintf(arquivo, "%s\n", meulivro[0].autor);
+        fprintf(arquivo, "%d\n", meulivro[0].ano);
         fclose(arquivo);
         printf("Livro salvo com sucesso!!!\n");
     } else {
@@ -46,23 +46,23 @@ void salvar_livro(livro meulivro) {
 //Main Aqui
 int main() {
    
-    livro meulivro;
+    livro meulivro[100];
     printf("Digite o nome do livro:  ");
-    fgets(meulivro.titulo, 100, stdin);
-    meulivro.titulo[strcspn(meulivro.titulo, "\n")] = 0; 
+    fgets(meulivro[0].titulo, 100, stdin);
+    meulivro[0].titulo[strcspn(meulivro[0].titulo, "\n")] = 0; 
 
     printf("Digite o autor do livro:  ");
-    fgets(meulivro.autor, 50, stdin);
-    meulivro.autor[strcspn(meulivro.autor, "\n")] = 0; 
+    fgets(meulivro[0].autor, 50, stdin);
+    meulivro[0].autor[strcspn(meulivro[0].autor, "\n")] = 0; 
 
     printf("Digite o ano de publicação do livro:  ");
-    scanf("%d", &meulivro.ano);
+    scanf("%d", &meulivro[0].ano);
     while (getchar() != '\n'); 
     
     printf("==== LIVRO CADASTRADO ====\n");
-    printf("Titulo: %s\n", meulivro.titulo);
-    printf("Autor: %s\n", meulivro.autor);
-    printf("Ano: %d\n", meulivro.ano);
+    printf("Titulo: %s\n", meulivro[0].titulo);
+    printf("Autor: %s\n", meulivro[0].autor);
+    printf("Ano: %d\n", meulivro[0].ano);
     printf("===========================\n");
     printf("                                \n");
     salvar_livro(meulivro);
