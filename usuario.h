@@ -12,4 +12,5 @@ void cadastrar_usuario(Usuario lista[], int *total);
 void listar_usuarios(Usuario lista[], int total);
 int buscar_usuario_matricula(Usuario lista[], int total, int matricula);
 
+void carregar_usuarios(Usuario lista[], int *total);
 #endif
