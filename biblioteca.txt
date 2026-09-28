@@ -1,25 +1,5 @@
-Verity
-Collen Hoover
-2020
-IT a Coisa
-Stephen King
-1986
-A paciente silenciosa
-Alex Michaelides
-2019
-Emo��o das Marcas
-Marc Gob�
-2010
-Harry potter
-J.K. Rowling
-1997
-Engenharia de software
-summervile
-2011Jogos Vorazes
-Suzanne Collins
-2008
-22
-Slayers 2
-Roblox
-2026
-5
+10
+Harry potter e a pedra filosofal
+JK rolling
+2000
+4
