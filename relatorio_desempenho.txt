@@ -1,0 +1,13 @@
+RELATORIO DE DESEMPENHO
+=======================
+
+Quantidade de elementos: 1500
+
+Bubble Sort: 0.004000 segundos
+Selection Sort: 0.001000 segundos
+Insertion Sort: 0.002000 segundos
+
+Complexidade dos algoritmos:
+Bubble Sort: O(n^2)
+Selection Sort: O(n^2)
+Insertion Sort: O(n^2) no pior caso
