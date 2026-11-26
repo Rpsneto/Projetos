@@ -1,127 +1,241 @@
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "usuario.h"
 
-void cadastrar_usuario(Usuario lista[], int *total) {
+#define ARQUIVO_BINARIO "usuarios.dat"
+#define ARQUIVO_TEXTO "usuarios.txt"
 
-    if (*total >= 100) {
-        printf("Erro: Limite de usuarios atingido!\n");
-        return;
+static int aumentar_capacidade(
+    Usuario **lista,
+    int *capacidade,
+    int total
+) {
+    if (total < *capacidade) {
+        return 1;
     }
 
-    Usuario novo;
+    int nova_capacidade = (*capacidade == 0) ? 10 : *capacidade * 2;
 
-    printf("Digite a matricula do usuario (apenas numeros): ");
-    scanf("%d", &novo.matricula);
-    while (getchar() != '\n');
+    Usuario *temporario = realloc(
+        *lista,
+        nova_capacidade * sizeof(Usuario)
+    );
 
-    printf("Digite o nome do usuario: ");
-    fgets(novo.nome, 100, stdin);
-    novo.nome[strcspn(novo.nome, "\n")] = 0;
+    if (temporario == NULL) {
+        printf("Erro ao alocar memoria para usuarios.\n");
+        return 0;
+    }
 
-    printf("Digite o curso do usuario: ");
-    fgets(novo.curso, 50, stdin);
-    novo.curso[strcspn(novo.curso, "\n")] = 0;
+    *lista = temporario;
+    *capacidade = nova_capacidade;
 
-    novo.total_emprestimos = 0;
+    return 1;
+}
 
-    lista[*total] = novo;
-    (*total)++;
+void ordenar_usuarios(Usuario lista[], int total) {
+    int i, j;
+    Usuario chave;
 
-    FILE *arquivo = fopen("usuarios.txt", "a");
+    for (i = 1; i < total; i++) {
+        chave = lista[i];
+        j = i - 1;
 
-    if (arquivo != NULL) {
+        while (j >= 0 && lista[j].matricula > chave.matricula) {
+            lista[j + 1] = lista[j];
+            j--;
+        }
 
-        fprintf(
-            arquivo,
-            "%d\n%s\n%s\n%d\n",
-            novo.matricula,
-            novo.nome,
-            novo.curso,
-            novo.total_emprestimos
-        );
-
-        fclose(arquivo);
-
-        printf("Usuario cadastrado e salvo com sucesso!\n");
-
-    } else {
-
-        printf("Erro ao salvar o usuario no arquivo.\n");
+        lista[j + 1] = chave;
     }
 }
 
+int buscar_usuario_matricula(
+    Usuario lista[],
+    int total,
+    int matricula
+) {
+    int inicio = 0;
+    int fim = total - 1;
 
-void listar_usuarios(Usuario lista[], int total) {
+    while (inicio <= fim) {
+        int meio = inicio + (fim - inicio) / 2;
 
-    if (total == 0) {
-        printf("\nNenhum usuario cadastrado.\n");
-        return;
-    }
+        if (lista[meio].matricula == matricula) {
+            return meio;
+        }
 
-    printf("\n=== LISTA DE USUARIOS ===\n");
-
-    for (int i = 0; i < total; i++) {
-
-        printf("Matricula:    %d\n", lista[i].matricula);
-        printf("Nome:         %s\n", lista[i].nome);
-        printf("Curso:        %s\n", lista[i].curso);
-        printf("Emprestimos:  %d ativos\n", lista[i].total_emprestimos);
-        printf("---------------------------\n");
-    }
-}
-
-
-int buscar_usuario_matricula(Usuario lista[], int total, int matricula) {
-
-    for (int i = 0; i < total; i++) {
-
-        if (lista[i].matricula == matricula) {
-            return i;
+        if (lista[meio].matricula < matricula) {
+            inicio = meio + 1;
+        } else {
+            fim = meio - 1;
         }
     }
 
     return -1;
 }
 
+void cadastrar_usuario(
+    Usuario **lista,
+    int *total,
+    int *capacidade
+) {
+    Usuario novo;
 
-void carregar_usuarios(Usuario lista[], int *total) {
+    printf("\n--- CADASTRO DE USUARIO ---\n");
 
-    FILE *arquivo = fopen("usuarios.txt", "r");
+    printf("Matricula: ");
+    if (scanf("%d", &novo.matricula) != 1) return;
+
+    if (buscar_usuario_matricula(
+        *lista,
+        *total,
+        novo.matricula
+    ) != -1) {
+        printf("Essa matricula ja esta cadastrada.\n");
+        return;
+    }
+
+    printf("Nome: ");
+    scanf(" %99[^\n]", novo.nome);
+
+    printf("Curso: ");
+    scanf(" %49[^\n]", novo.curso);
+
+    novo.total_emprestimos = 0;
+
+    if (!aumentar_capacidade(lista, capacidade, *total)) {
+        return;
+    }
+
+    (*lista)[*total] = novo;
+    (*total)++;
+
+    ordenar_usuarios(*lista, *total);
+
+    printf("\nUsuario cadastrado com sucesso!\n");
+}
+
+void listar_usuarios(Usuario lista[], int total) {
+    int i;
+
+    printf("\n--- LISTA DE USUARIOS ---\n");
+
+    if (total == 0) {
+        printf("Nenhum usuario cadastrado.\n");
+        return;
+    }
+
+    for (i = 0; i < total; i++) {
+        printf("\nMatricula: %d\n", lista[i].matricula);
+        printf("Nome: %s\n", lista[i].nome);
+        printf("Curso: %s\n", lista[i].curso);
+        printf("Total de emprestimos: %d\n",
+               lista[i].total_emprestimos);
+    }
+}
+
+int salvar_usuarios(Usuario lista[], int total) {
+    FILE *arquivo = fopen(ARQUIVO_BINARIO, "wb");
+
+    if (arquivo == NULL) {
+        printf("Erro ao salvar usuarios.\n");
+        return 0;
+    }
+
+    if (fwrite(&total, sizeof(int), 1, arquivo) != 1) {
+        fclose(arquivo);
+        return 0;
+    }
+
+    if (total > 0 &&
+        fwrite(lista, sizeof(Usuario), total, arquivo) != (size_t)total) {
+        fclose(arquivo);
+        return 0;
+    }
+
+    fclose(arquivo);
+    return 1;
+}
+
+void carregar_usuarios(
+    Usuario **lista,
+    int *total,
+    int *capacidade
+) {
+    FILE *arquivo = fopen(ARQUIVO_BINARIO, "rb");
+
+    *lista = NULL;
+    *total = 0;
+    *capacidade = 0;
+
+    if (arquivo != NULL) {
+        int quantidade;
+
+        if (fread(&quantidade, sizeof(int), 1, arquivo) == 1 &&
+            quantidade >= 0) {
+
+            if (quantidade > 0) {
+                Usuario *dados = malloc(quantidade * sizeof(Usuario));
+
+                if (dados != NULL &&
+                    fread(dados, sizeof(Usuario), quantidade, arquivo)
+                    == (size_t)quantidade) {
+
+                    *lista = dados;
+                    *total = quantidade;
+                    *capacidade = quantidade;
+                } else {
+                    free(dados);
+                    printf("Erro ao ler usuarios.dat.\n");
+                }
+            }
+        }
+
+        fclose(arquivo);
+        ordenar_usuarios(*lista, *total);
+        return;
+    }
+
+    /* Importacao do arquivo TXT antigo */
+    arquivo = fopen(ARQUIVO_TEXTO, "r");
 
     if (arquivo == NULL) {
         return;
     }
 
-    Usuario u;
+    while (1) {
+        Usuario novo;
 
-    while (fscanf(arquivo, "%d\n", &u.matricula) == 1) {
-
-        if (fgets(u.nome, 100, arquivo) == NULL) {
+        if (fscanf(arquivo, "%d\n", &novo.matricula) != 1) {
             break;
         }
 
-        u.nome[strcspn(u.nome, "\n")] = 0;
+        if (fgets(novo.nome, sizeof(novo.nome), arquivo) == NULL) break;
+        novo.nome[strcspn(novo.nome, "\r\n")] = '\0';
 
+        if (fgets(novo.curso, sizeof(novo.curso), arquivo) == NULL) break;
+        novo.curso[strcspn(novo.curso, "\r\n")] = '\0';
 
-        if (fgets(u.curso, 50, arquivo) == NULL) {
+        if (fscanf(
+            arquivo,
+            "%d\n",
+            &novo.total_emprestimos
+        ) != 1) {
             break;
         }
 
-        u.curso[strcspn(u.curso, "\n")] = 0;
-
-
-        if (fscanf(arquivo, "%d\n", &u.total_emprestimos) != 1) {
+        if (!aumentar_capacidade(lista, capacidade, *total)) {
             break;
         }
 
-
-        if (*total < 100) {
-
-            lista[*total] = u;
-            (*total)++;
-        }
+        (*lista)[*total] = novo;
+        (*total)++;
     }
 
     fclose(arquivo);
+
+    ordenar_usuarios(*lista, *total);
+    salvar_usuarios(*lista, *total);
 }
