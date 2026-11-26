@@ -9,7 +9,7 @@
 
 #define TAMANHO_TESTE 1500
 
-/* Algoritmo Bubble Sort */
+
 static void bubble_sort(int vetor[], int tamanho) {
     int i, j, temp;
 
@@ -40,7 +40,7 @@ static void selection_sort(int vetor[], int tamanho) {
             }
         }
 
-        
+
         temp = vetor[i];
         vetor[i] = vetor[menor];
         vetor[menor] = temp;
@@ -329,13 +329,13 @@ int main(void) {
 
     } while (opcao != 0);
 
-    /* Salvamento final */
+   
     salvar_livros(lista_livros, total_livros);
     salvar_usuarios(lista_usuarios, total_usuarios);
   
     salvar_emprestimos(lista_emprestimos, total_emprestimos);
 
-    /* Liberacao da memoria */
+    
     free(lista_livros);
     free(lista_usuarios);
     free(lista_emprestimos);
